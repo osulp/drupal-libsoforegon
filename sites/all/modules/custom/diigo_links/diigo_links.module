@@ -1,0 +1,188 @@
+<?php
+/**
+ * @file
+ * Block module to display Diigo links based on the user's selection.
+ *
+ * OR State library has set up a series of curated links at:
+ * https://www.diigo.com/user/Plinkit-or.
+ *
+ * Tags can be added or removed by editing the Topics field in the Diigo Fields
+ * admin configuration page: admin/config/content/diigo_links.
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function diigo_links_block_info() {
+  $blocks['show_topics'] = array(
+    'info' => t('Diigo Topics'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  $blocks['show_links'] = array(
+    'info' => t('Diigo Links'),
+    'cache' => DRUPAL_NO_CACHE,
+  );
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function diigo_links_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'show_topics':
+      $block['subject'] = t('All Topics');
+      $block['content'] = diigo_links_show_topics();
+      break;
+
+    case 'show_links':
+      $block['subject'] = t('Job Links');
+      $block['content'] = diigo_links_show_links();
+  }
+  return $block;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function diigo_links_menu() {
+  $items = array();
+  $items['admin/config/content/diigo_links'] = array(
+    'title' => 'Diigo Links',
+    'description' => 'Configuration for Diigo Links',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('diigo_links_config_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['alltopics'] = array(
+    'title' => 'Choose a Topic',
+    'page callback' => 'diigo_links_show_topics',
+    'access arguments' => array('access content'),
+  );
+  $items['topic/%'] = array(
+    'page callback' => 'diigo_links_show_links',
+    'page arguments' => array(1),
+    'access arguments' => array('access content'),
+  );
+  return $items;
+}
+
+/**
+ * Page callback: Diigo Links settings.
+ *
+ * @see diigo_links_menu()
+ */
+function diigo_links_config_form($node, &$form_state) {
+  $form['diigo_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('RSS Feed URI'),
+    '#default_value' => variable_get('diigo_url'),
+    '#description' => t('The URI of the RSS feed (not including the topic).'),
+    '#required' => TRUE,
+  );
+  $form['diigo_topics'] = array(
+    '#title' => t('Topics'),
+    '#type' => 'textarea',
+    '#cols' => 60,
+    '#rows' => 20,
+    '#default_value' => variable_get('diigo_topics'),
+    '#description' => t('Pipe-separated list in the format of Diigo-Topic|Friendly-Name-of-Topic, one per line.'),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Page callback: List of topics in Diigo.
+ *
+ * @return array
+ *   Render array of links to topics.
+ */
+function diigo_links_show_topics() {
+  $items = array();
+  $topics = _diigo_links_get_topics();
+  foreach ($topics as $key => $friendly) {
+    $url = '/topic/' . $key;
+    $items[]['data'] = '<a href="' . $url . '">' . $friendly . '</a>';
+  }
+  $output = array(
+    '#theme' => 'item_list',
+    '#items' => $items,
+    '#attributes' => array('style' => 'list-style-type: none'),
+    '#prefix' => '<div id="diigo-topics-list">',
+    '#suffix' => '</div>',
+  );
+  return $output;
+}
+
+/**
+ * Create an array of topics from the value in settings.
+ *
+ * @return array
+ *   List of topics: key = Diigo name, value = friendly name.
+ */
+function _diigo_links_get_topics() {
+  $topic_list = array();
+  $topics = variable_get('diigo_topics');
+  $list = explode("\r\n", $topics);
+  foreach ($list as $item) {
+    $parts = explode('|', $item);
+    $topic_list[$parts[0]] = $parts[1];
+  }
+  return $topic_list;
+}
+
+/**
+ * Page callback: Shows a list of items for the specified topic.
+ *
+ * @param string $topic
+ *   The topic as passed in from the site.
+ *
+ * @return array
+ *   List of link content retrieved from Diigo based on the topics.
+ */
+function diigo_links_show_links($topic = NULL) {
+
+  $topic = (empty($topic)) ? 'jobs' : $topic;
+  $topic_list = _diigo_links_get_topics();
+  drupal_set_title('Links for the topic "' . $topic_list[$topic] . '"');
+
+  $feed_url = variable_get('diigo_url', "http://www.diigo.com/rss/user/Plinkit-or/");
+  $variations = array(
+    "or-" . $topic . "-top",
+    $topic . "-top",
+    "or-" . $topic,
+    $topic,
+  );
+
+  $links = array();
+  foreach ($variations as $variation) {
+    $raw_feed = file_get_contents($feed_url . $variation);
+    $xml = new SimpleXmlElement($raw_feed);
+
+    foreach ($xml->channel->item as $item) {
+      $links[]['data'] = '<h4>' . (string) $item->title . '</h4><p>'
+        . (string) $item->description . '</p><p><a href="'
+        . (string) $item->link . '" target="_blank">' . (string) $item->link
+        . '</a></p>';
+    }
+  }
+
+  if (count($links) > 0) {
+    $output = array(
+      '#theme' => 'item_list',
+      '#items' => $links,
+      '#attributes' => array('style' => 'list-style-type: none'),
+      '#prefix' => '<div id="diigo-links-list">',
+      '#suffix' => '</div>',
+    );
+  }
+  else {
+    $output = array(
+      '#markup' => t('No links found.'),
+    );
+  }
+  return $output;
+}

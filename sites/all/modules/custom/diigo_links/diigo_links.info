@@ -1,0 +1,5 @@
+name = Diigo Links
+description = Accesses and displays selected links from the OR State Library's favorites on Diigo
+core = 7.x
+package = OSU Custom
+configure = admin/config/content/diigo_links

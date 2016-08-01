@@ -1,0 +1,140 @@
+<?php
+/**
+ * @file
+ * Provides geolocation-based functionality to the Libraries of Oregon website.
+ */
+
+/**
+ * Implements hook_block_info().
+ */
+function loo_geolocate_block_info() {
+  $block = array(
+    'visitor_location' => array(
+      'info' => t('Display Visitor Location'),
+      'cache' => DRUPAL_NO_CACHE,
+    ),
+    'ask_or_librarian' => array(
+      'info' => t('Ask a Librarian'),
+      'cache' => DRUPAL_NO_CACHE,
+    ),
+  );
+  return $block;
+}
+
+/**
+ * Implements hook_menu().
+ */
+function loo_geolocate_menu() {
+  $items = array();
+  $items['admin/config/system/loo_geolocate'] = array(
+    'title' => 'OR Library Geolocation',
+    'description' => 'Configuration for Oregon Library Geolocation',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('loo_geolocate_config_form'),
+    'access arguments' => array('access administration pages'),
+    'type' => MENU_NORMAL_ITEM,
+  );
+  $items['galedbs'] = array(
+    'title' => 'Gale Databases',
+    'access arguments' => array('access content'),
+    'page callback' => 'loo_geolocate_galedbs_view',
+    'type' => MENU_NORMAL_ITEM,
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_block_view().
+ */
+function loo_geolocate_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'visitor_location':
+      $block['subject'] = t('Your Location');
+      $smart_ip_session = smart_ip_session_get('smart_ip');
+      if (empty($smart_ip_session['location']['city']) && empty($smart_ip_session['location']['region']) && empty($smart_ip_session['location']['country'])) {
+        $block['content'] = '<p class="loo-location-info">We were unable to determine your location, so some services may not be available. Please <a href="mailto:support@librariesoforegon.org">contact us</a> if you need assistance. </p>';
+      }
+      else {
+        $block['content'] = '<p class="loo-location-info">You are currently accessing the Libraries of Oregon portal from <strong>'
+          . $smart_ip_session['location']['city'] . ', '
+          . $smart_ip_session['location']['region'] . ', '
+          . $smart_ip_session['location']['country'] . '</strong>. <a href="/libraries-by-city/'
+          . $smart_ip_session['location']['city'] . '">Find your nearest library</a></p>';
+      }
+      break;
+
+    case 'ask_or_librarian':
+      // Show the librarian chat if they are within the state.
+      $block['subject'] = t('Ask a Librarian');
+      $smart_ip_session = smart_ip_session_get('smart_ip');
+      $content = ('OR' == $smart_ip_session['location']['region_code'])
+        ? '<div id="geolocate-img"><a href="javascript:void(0)" onclick="window.open(\'http://www.answerland.org/widget/loop?z='
+        . $smart_ip_session['location']['zip'] . '\',\'\', \'height=400,width=320,toolbar=no,menubar=no,resizable=no,scrollbars=no\'); return false;"><img src = "'
+        . drupal_get_path('module', 'loo_geolocate') . '/images/loop-chat.png" border="0" /></a></div>'
+        : 'We could not determine that you are located within the state of Oregon and as a result, this service is not available. ';
+      $block['content'] = $content;
+      break;
+  }
+
+  return $block;
+}
+
+/**
+ * Page callback: View databases page.
+ *
+ * @see loo_geolocate_menu()
+ *
+ * @return array
+ *   Returns the render array but in this case the formatting happens in the
+ *   template file page--galedbs.tpl.php
+ */
+function loo_geolocate_galedbs_view() {
+  return array('#title' => 'Gale Databases');
+}
+
+/**
+ * Page callback: OR Library Geolocation settings page.
+ *
+ * @see loo_geolocate_menu()
+ */
+function loo_geolocate_config_form($form, &$form_state) {
+  $form['ezproxy_user'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy username'),
+    '#default_value' => variable_get('ezproxy_user', 'USERNAME'),
+    '#description' => t('EZproxy user.'),
+    '#required' => TRUE,
+  );
+  $form['ezproxy_secret'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy secret'),
+    '#default_value' => variable_get('ezproxy_secret', 'PASSWORD'),
+    '#description' => t('EZproxy secret.'),
+    '#required' => TRUE,
+  );
+  $form['ezproxy_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('EZproxy URL'),
+    '#default_value' => variable_get('ezproxy_url', "http://proxy.librariesoforegon.org:2048"),
+    '#description' => t('EZproxy URL, including port.'),
+    '#required' => TRUE,
+  );
+  return system_settings_form($form);
+}
+
+/**
+ * Implements hook_theme_registry_alter().
+ */
+function loo_geolocate_theme_registry_alter(&$theme_registry) {
+  // Have Drupal search the module directory for our page template.
+  $module_path = drupal_get_path('module', 'loo_geolocate');
+  $template_file_objects = drupal_find_theme_templates($theme_registry, '.tpl.php', $module_path);
+  foreach ($template_file_objects as $key => $template_file_object) {
+    if (!isset($theme_registry[$key]['theme path']) || !preg_match('#/themes/#', $theme_registry[$key]['theme path'])) {
+      $theme_registry[$key]['theme path'] = $module_path;
+      $theme_registry[$key] = array_merge($theme_registry[$key], $template_file_object);
+      $theme_registry[$key]['type'] = 'module';
+    }
+  }
+}
