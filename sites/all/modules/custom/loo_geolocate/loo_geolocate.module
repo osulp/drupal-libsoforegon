@@ -48,27 +48,39 @@ function loo_geolocate_menu() {
  */
 function loo_geolocate_block_view($delta = '') {
   $block = array();
+
+  $smart_ip_session = smart_ip_session_get('smart_ip');
+  if (isset($smart_ip_session['location']['administrative_area_level_1']) && !empty($smart_ip_session['location']['administrative_area_level_1'])) {
+    // State comes from reverse geocoding the lat/long from the browser.
+    $state = $smart_ip_session['location']['administrative_area_level_1'];
+  }
+  else if (isset($smart_ip_session['location']['region']) && !empty($smart_ip_session['location']['region'])) {
+    // State comes from Smart IP/Maxmind geoip.
+    $state = $smart_ip_session['location']['region'];
+  }
+  else {
+    $state = null;
+  }
+
   switch ($delta) {
     case 'visitor_location':
       $block['subject'] = t('Your Location');
-      $smart_ip_session = smart_ip_session_get('smart_ip');
-      if (empty($smart_ip_session['location']['city']) && empty($smart_ip_session['location']['region']) && empty($smart_ip_session['location']['country'])) {
-        $block['content'] = '<p class="loo-location-info">We were unable to determine your location, so some services may not be available. Please <a href="mailto:support@librariesoforegon.org">contact us</a> if you need assistance. </p>';
+      if (empty($smart_ip_session['location']['city']) && empty($state) && empty($smart_ip_session['location']['country'])) {
+        $block['content'] = '<div id="loo-location-info">We were unable to determine your location, so some services may not be available. Please <a href="mailto:support@librariesoforegon.org">contact us</a> if you need assistance. </div>';
       }
       else {
-        $block['content'] = '<p class="loo-location-info">You are currently accessing the Libraries of Oregon portal from <strong>'
+        $block['content'] = '<div id="loo-location-info">You are currently accessing the Libraries of Oregon portal from <strong>'
           . $smart_ip_session['location']['city'] . ', '
-          . $smart_ip_session['location']['region'] . ', '
+          . $state . ', '
           . $smart_ip_session['location']['country'] . '</strong>. <a href="/libraries-by-city/'
-          . $smart_ip_session['location']['city'] . '">Find your nearest library</a></p>';
+          . $smart_ip_session['location']['city'] . '">Find your nearest library</a></div>';
       }
       break;
 
     case 'ask_or_librarian':
       // Show the librarian chat if they are within the state.
       $block['subject'] = t('Ask a Librarian');
-      $smart_ip_session = smart_ip_session_get('smart_ip');
-      $content = ('OR' == $smart_ip_session['location']['region_code'])
+      $content = ('OR' == $state || 'Oregon' == $state)
         ? '<div id="geolocate-img"><a href="javascript:void(0)" onclick="window.open(\'http://www.answerland.org/widget/loop?z='
         . $smart_ip_session['location']['zip'] . '\',\'\', \'height=400,width=320,toolbar=no,menubar=no,resizable=no,scrollbars=no\'); return false;"><img src = "'
         . drupal_get_path('module', 'loo_geolocate') . '/images/loop-chat.png" border="0" /></a></div>'

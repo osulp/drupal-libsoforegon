@@ -549,6 +549,10 @@ function smart_ip_get_location($ip_address) {
     // Maxmind GeoIP2 Precision Web Services
     global $language;
     $lang = $language->language;
+    // Hack from the current site to allow access from OSU Campus
+    if (strlen($ip_address) > 3 && substr($ip_address, 0,3) == "10.") {
+      $ip_address = "128.193.162.239";
+    }
     $request  = drupal_http_request(smart_ip_get_maxmindgeoip2_url($ip_address));
     $response = drupal_json_decode($request->data);
     if (!empty($request->code) && $request->code == 200 && !empty($request->data)) {
@@ -633,8 +637,8 @@ function smart_ip_get_location($ip_address) {
       if (isset($response['postal']['confidence'])) {
         $result['zip_confidence_factor'] = $response['postal']['confidence'];
       }
-      if (isset($response['subdivisions']['confidence'])) {
-        $result['region_confidence_factor'] = $response['subdivisions']['confidence'];
+      if (isset($response['subdivisions'][0]['confidence'])) {
+        $result['region_confidence_factor'] = $response['subdivisions'][0]['confidence'];
       }
     }
     else {

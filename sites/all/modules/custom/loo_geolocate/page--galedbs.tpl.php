@@ -65,7 +65,19 @@
  */
 
 $smart_ip_session = smart_ip_session_get('smart_ip');
-if (isset($smart_ip_session['location']['region_code']) && 'OR' == $smart_ip_session['location']['region_code']) {
+if (isset($smart_ip_session['location']['administrative_area_level_1']) && !empty($smart_ip_session['location']['administrative_area_level_1'])) {
+  // State comes from reverse geocoding the lat/long from the browser.
+  $state = $smart_ip_session['location']['administrative_area_level_1'];
+}
+else if (isset($smart_ip_session['location']['region']) && !empty($smart_ip_session['location']['region'])) {
+  // State comes from Smart IP/Maxmind geoip.
+  $state = $smart_ip_session['location']['region'];
+}
+else {
+  $state = null;
+}
+
+if (!empty($state) && ('OR' == $state || 'Oregon' == $state)) {
 
   $page_content = array();
   require_once 'ezproxyticket.php';

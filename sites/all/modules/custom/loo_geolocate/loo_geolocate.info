@@ -3,5 +3,7 @@ description = Displays geolocation data for LoO users.
 package  = OSU Custom
 core = 7.x
 dependencies[] = smart_ip
+dependencies[] = device_geolocation
 stylesheets[all][] = loo_geolocate.css
 configure = admin/config/system/loo_geolocate
+scripts[] = loo_geolocate.js
