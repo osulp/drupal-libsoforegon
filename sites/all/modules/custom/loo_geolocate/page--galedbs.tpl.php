@@ -93,11 +93,11 @@ if (!empty($state) && ('OR' == $state || 'Oregon' == $state)) {
   else {
     $search_term = "";
   }
-//    if ('select_search_db' == $search_term) {
+    if ('' == $search_term) {
   $url = $ezproxy->url("http://find.galegroup.com/menu/commonmenu.do?userGroupName=oregon_sl");
-//    } else {
-//      $url = $ezproxy->url("http://access.gale.com/cgi-bin/widgets/v2/search.pl?keyword=". $search_term ."&id=61866__oregon_sl&dir=psx");
-//    }
+    } else {
+      $url = $ezproxy->url("http://go.galegroup.com.proxy.librariesoforegon.org:2048/ps/basicSearch.do?inputFieldValue(0)=" . $search_term . "&inputFieldName(0)=OQE&inputFieldName(0)=OQE&nwf=y&searchType=BasicSearchForm&userGroupName=oregon_sl&prodId=GPS&spellCheck=true&method=doSearch");
+    }
 
   $page_content = array(
     '#markup' => '<iframe src="' . $url . '" width="100%" height="100%"></iframe>',
