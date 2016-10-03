@@ -31,23 +31,26 @@
 <?php if (!empty($location)): ?>
   <dl>
     <?php foreach ($location as $item => $value): ?>
-      <?php if (!empty($value) && $item != 'region_code' && $item != 'timestamp'): ?>
+      <?php if (!empty($value) && $item != 'region_code' && $item != 'original_data'): ?>
         <?php
           if ($item == 'source') {
             switch ($value) {
-              case DEVICE_GEOLOCATION_SMART_IP:
-                $value = 'Geocoded Smart IP coordinates';
+              case SMART_IP_SOURCE_GEOCODED_SMART_IP:
+                $value = t('Google Map Geocoded Smart IP coordinates');
                 break;
-              case DEVICE_GEOLOCATION_W3C:
-                $value = 'Geocoded W3C coordinates';
+              case SMART_IP_SOURCE_W3C:
+                $value = t('Geocoded W3C coordinates');
                 break;
               default:
-                $value = 'Smart IP geolocation';
+                $value = t('Smart IP geolocation');
                 break;
             }
           }
+          if ($item == 'timestamp') {
+            $value = format_date($value, 'long');
+          }
           $item = str_replace('_', ' ', $item);
-          $item[0] = strtoupper($item[0]);
+          $item = ucwords(strtolower($item));
         ?>
         <dt><?php print $item; ?></dt>
         <dd><?php print $value; ?></dd>

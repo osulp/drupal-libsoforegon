@@ -1,7 +1,10 @@
 (function ($) {
   Drupal.behaviors.deviceGeolocationAutoDetect = {
     attach: function (context, settings) {
-      var geolocation_source = 1; // Default it to Smart IP
+      var geolocation_source = settings.smart_ip_src.geocoded_smart_ip;
+      var longitude = null;
+      var latitude  = null;
+
       if (!settings.device_geolocation.ask_geolocate) {
         // Don't ask user for geolocation. Duration of frequency checking is set.
         return;
@@ -10,19 +13,13 @@
       if (isset(settings.device_geolocation.longitude)) {
         longitude = !isNaN(settings.device_geolocation.longitude) ? settings.device_geolocation.longitude : (!isNaN(settings.device_geolocation.longitude[0]) ? settings.device_geolocation.longitude[0] : null);
       }
-      else {
-        longitude = null;
-      }
       if (isset(settings.device_geolocation.latitude)) {
         latitude = !isNaN(settings.device_geolocation.latitude) ? settings.device_geolocation.latitude : (!isNaN(settings.device_geolocation.latitude[0]) ? settings.device_geolocation.latitude[0] : null);
-      }
-      else {
-        latitude = null;
       }
       // Try W3C Geolocation (Preferred) to detect user's location
       if (navigator.geolocation && !settings.device_geolocation.debug_mode) {
         navigator.geolocation.getCurrentPosition(function(position) {
-          geolocation_source = 2; // W3C
+          geolocation_source = settings.smart_ip_src.w3c;
           geocoder_send_address(position.coords.latitude, position.coords.longitude);
         }, function() {
           // Smart IP fallback
@@ -58,12 +55,27 @@
                   var short_name = results[0].address_components[i].short_name || '';
                   var type = results[0].address_components[i].types[0];
                   if (long_name != null) {
-                    // Manipulate the result to our liking
+                    // Manipulate the result.
                     switch(type) {
                       case 'country':
-                        address['country'] = long_name;
+                        address[type] = long_name;
                         if (short_name != null) {
                           address['country_code'] = short_name;
+                        }
+                        break;
+                      case 'locality':
+                        address[type]   = long_name;
+                        address['city'] = long_name;
+                        break;
+                      case 'postal_code':
+                        address[type]  = long_name;
+                        address['zip'] = long_name;
+                        break;
+                      case 'administrative_area_level_1':
+                        address[type] = long_name;
+                        address['region'] = long_name;
+                        if (short_name != null) {
+                          address['region_code'] = short_name;
                         }
                         break;
                       default:
@@ -104,7 +116,7 @@
 })(jQuery);
 
 function isset() {  
-  var a = arguments
+  var a = arguments;
   var l = a.length, i = 0;
   
   if (l === 0) {
