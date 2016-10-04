@@ -14,9 +14,9 @@ files[] = includes/geoip.inc
 files[] = includes/geoipcity.inc
 files[] = includes/geoipregionvars.php
 configure = admin/config/people/smart_ip
-; Information added by Drupal.org packaging script on 2016-07-13
-version = "7.x-2.45"
+; Information added by Drupal.org packaging script on 2016-09-28
+version = "7.x-2.47"
 core = "7.x"
 project = "smart_ip"
-datestamp = "1468404841"
+datestamp = "1475036351"
 

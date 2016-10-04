@@ -7,9 +7,6 @@
  * Google Geocoding service.
  */
 
-define('DEVICE_GEOLOCATION_SMART_IP', 1);
-define('DEVICE_GEOLOCATION_W3C', 2);
-
 /**
  * Implements hook_init().
  */
@@ -125,16 +122,22 @@ function device_geolocation_help($path, $arg) {
  * Implements hook_form_alter()
  */
 function device_geolocation_form_alter(&$form, &$form_state, $form_id) {
-  // Add additional textarea form field for "Geolocate on specific pages"
   if ($form_id == 'smart_ip_admin_settings') {
-    $form['smart_ip_preferences']['smart_ip_allowed_pages']['#title'] = t("Ask or acquire/update user's geolocation on specific Drupal native pages");
-    $form['smart_ip_preferences']['device_geolocation_ajax_check'] = array(
+    // Container for Device Geolocation preference forms
+    $form['device_geolocation_preferences'] = array(
+      '#type'        => 'fieldset',
+      '#title'       => t('Device Geolocation settings'),
+      '#collapsible' => FALSE,
+      '#collapsed'   => FALSE,
+      '#weight'      => 4,
+    );
+    $form['device_geolocation_preferences']['device_geolocation_ajax_check'] = array(
       '#type'          => 'checkbox',
       '#title'         => t("Use AJAX in user's geolocation checking (useful if the site or pages listed above are cached)"),
       '#default_value' => variable_get('device_geolocation_ajax_check', FALSE),
     );
     $device_geolocation_check_frequency = variable_get('device_geolocation_check_frequency', NULL);
-    $form['smart_ip_preferences']['device_geolocation_check_frequency'] = array(
+    $form['device_geolocation_preferences']['device_geolocation_check_frequency'] = array(
       '#title'         => t("Frequency of user's geolocation checking"),
       '#type'          => 'textfield',
       '#size'          => 10,
@@ -142,7 +145,7 @@ function device_geolocation_form_alter(&$form, &$form_state, $form_id) {
       '#default_value' => $device_geolocation_check_frequency === NULL ? '' : $device_geolocation_check_frequency / 3600,
       '#field_suffix'  => t('hours'),
     );
-    $form['smart_ip_preferences']['device_geolocation_google_map_api'] = array(
+    $form['device_geolocation_preferences']['device_geolocation_google_map_api'] = array(
       '#title'         => t('Google map API key'),
       '#type'          => 'textfield',
       '#description'   => t('The use of Google map service requires API key. Get your API key !here.', array('!here' => l(t('here'), 'https://developers.google.com/maps/documentation/javascript/get-api-key'))),
@@ -215,12 +218,6 @@ function device_geolocation_detector_ajax() {
         $smart_ip_session['location'][$label] = check_plain($address);
         smart_ip_session_set('device_geolocation', TRUE);
       }
-    }
-    if (empty($smart_ip_session['location']['zip']) && isset($smart_ip_session['location']['postal_code'])) {
-      $smart_ip_session['location']['zip'] = $smart_ip_session['location']['postal_code'];
-    }
-    if (empty($smart_ip_session['location']['city']) && isset($smart_ip_session['location']['locality'])) {
-      $smart_ip_session['location']['city'] = $smart_ip_session['location']['locality'];
     }
     $smart_ip_session['location']['timestamp'] = REQUEST_TIME;
     // Allow other modules to modify result via hook_device_geolocation_detector_ajax_alter()

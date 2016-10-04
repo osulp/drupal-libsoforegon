@@ -17,13 +17,16 @@ function smart_ip_views_bridge_views_query_alter(&$view, &$query) {
           $condition_value = $condition['value'];
           if (is_array($condition_value)) {
             foreach ($condition_value as $value) {
-              $smart_ip_index = explode('][', $value);
-              $smart_ip_index_count = count($smart_ip_index);
+              $smart_ip_index_count = 0;
+              if (!is_array($value)) {
+                $smart_ip_index = explode('][', $value);
+                $smart_ip_index_count = count($smart_ip_index);
+              }
               if ($smart_ip_index_count == 1) {
                 $smart_ip_index = explode('.', $value);
                 $smart_ip_index_count = count($smart_ip_index);
               }
-              if ($smart_ip_index_count == 3 && isset($_SESSION[$smart_ip_index[0]][$smart_ip_index[1]][$smart_ip_index[2]])) {
+              elseif ($smart_ip_index_count == 3 && isset($_SESSION[$smart_ip_index[0]][$smart_ip_index[1]][$smart_ip_index[2]])) {
                 $values[] = $_SESSION[$smart_ip_index[0]][$smart_ip_index[1]][$smart_ip_index[2]];
               }
             }
