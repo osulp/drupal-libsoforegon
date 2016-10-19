@@ -34,12 +34,6 @@ function loo_geolocate_menu() {
     'access arguments' => array('access administration pages'),
     'type' => MENU_NORMAL_ITEM,
   );
-  $items['galedbs'] = array(
-    'title' => 'Gale Databases',
-    'access arguments' => array('access content'),
-    'page callback' => 'loo_geolocate_galedbs_view',
-    'type' => MENU_NORMAL_ITEM,
-  );
   return $items;
 }
 
@@ -90,19 +84,6 @@ function loo_geolocate_block_view($delta = '') {
   }
 
   return $block;
-}
-
-/**
- * Page callback: View databases page.
- *
- * @see loo_geolocate_menu()
- *
- * @return array
- *   Returns the render array but in this case the formatting happens in the
- *   template file page--galedbs.tpl.php
- */
-function loo_geolocate_galedbs_view() {
-  return array('#title' => 'Gale Databases');
 }
 
 /**
