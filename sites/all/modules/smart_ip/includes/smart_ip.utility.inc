@@ -444,7 +444,12 @@ function smart_ip_maxmind_bin_db_update($license = '', $cron_run = FALSE, $force
   }
   else {
     if ($data_source == 'maxmind_bin') {
-      $url = SMART_IP_MAXMIND_LITE_BIN_DOWNLOAD_BASE_URL . "/$filename.dat.gz";
+      if ($edition == SMART_IP_MAXMIND_BIN_EDITION_COUNTRY) {
+        $url = SMART_IP_MAXMIND_LITE_BIN_DOWNLOAD_BASE_URL . "/GeoLiteCountry/$filename.dat.gz";
+      }
+      else {
+        $url = SMART_IP_MAXMIND_LITE_BIN_DOWNLOAD_BASE_URL . "/$filename.dat.gz";
+      }
       $gz_name = "$path/$filename.dat.gz";
     }
     elseif ($data_source == 'maxmindgeoip2_bin') {
