@@ -757,6 +757,15 @@ function smart_ip_admin_settings_validate($form, &$form_state) {
         )));
       }
     }
+    elseif ($form_state['values']['smart_ip_maxmind_bin_db_auto_update']) {
+      $db_path = drupal_realpath(file_stream_wrapper_uri_normalize('private://smart_ip'));
+      if (!file_exists("$db_path/$file")) {
+        form_set_error('smart_ip_maxmind_bin_db_auto_update', t('Initially you need to manually download the @file and upload it to your server at !path. The next succeeding updates should be automatic.', array(
+          '@file' => $file,
+          '!path' => $db_path,
+        )));
+      }
+    }
     else {
       $db_path = $form_state['values']['smart_ip_maxmind_bin_custom_path'];
       if (!file_exists("$db_path/$file")) {

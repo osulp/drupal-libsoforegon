@@ -36,6 +36,7 @@ update the Smart IP database at admin page or wait for the cron to run and updat
 database automatically for you.
 
 Requirements:
+PHP 5.4 and up
 Drupal 7.x
 
 Installation:

@@ -12,6 +12,19 @@
  */
 function smart_ip_requirements($phase = 'runtime') {
   $requirements = array();
+  // Ensure translations don't break at install time
+  $t = get_t();
+
+  // Test PHP version
+  $requirements['smart_ip_php'] = array(
+    'title' => $t('PHP'),
+    'value' => ($phase == 'install') ? l(phpversion(), 'admin/reports/status/php') : phpversion(),
+  );
+  if (version_compare(phpversion(), SMART_IP_MINIMUM_PHP) < 0) {
+    $requirements['smart_ip_php']['description'] = $t('Your PHP installation is too old. Smart IP requires at least PHP %version.', array('%version' => SMART_IP_MINIMUM_PHP));
+    $requirements['smart_ip_php']['severity'] = REQUIREMENT_ERROR;
+  }  
+
   if ($phase == 'runtime') {
     $correct_key = variable_set('smart_ip_correct_ipinfodb_key', FALSE);
     if (!$correct_key) {

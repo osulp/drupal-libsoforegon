@@ -402,32 +402,69 @@ function geoip_close($gi) {
   return fclose($gi->filehandle);
 }
 
-function geoip_country_id_by_name_v6($gi, $name) {
-  $rec = dns_get_record($name, DNS_AAAA);
-  if ( !$rec ) {
-    return false;
+if (!function_exists('geoip_country_id_by_name_v6')) {
+  function geoip_country_id_by_name_v6($gi, $name) {
+    $rec = dns_get_record($name, DNS_AAAA);
+    if ( !$rec ) {
+      return false;
+    }
+    $addr = $rec[0]["ipv6"];
+    if (!$addr || $addr == $name) {
+      return false;
+    }
+    return geoip_country_id_by_addr_v6($gi, $addr);
   }
-  $addr = $rec[0]["ipv6"];
-  if (!$addr || $addr == $name) {
-    return false;
+}
+else {
+  function _geoip_country_id_by_name_v6($gi, $name) {
+    $rec = dns_get_record($name, DNS_AAAA);
+    if ( !$rec ) {
+      return false;
+    }
+    $addr = $rec[0]["ipv6"];
+    if (!$addr || $addr == $name) {
+      return false;
+    }
+    return geoip_country_id_by_addr_v6($gi, $addr);
   }
-  return geoip_country_id_by_addr_v6($gi, $addr);
 }
 
-function geoip_country_id_by_name($gi, $name) {
-  $addr = gethostbyname($name);
-  if (!$addr || $addr == $name) {
-    return false;
+if (!function_exists('geoip_country_id_by_name')) {
+  function geoip_country_id_by_name($gi, $name) {
+    $addr = gethostbyname($name);
+    if (!$addr || $addr == $name) {
+      return false;
+    }
+    return geoip_country_id_by_addr($gi, $addr);
   }
-  return geoip_country_id_by_addr($gi, $addr);
+}
+else {
+  function _geoip_country_id_by_name($gi, $name) {
+    $addr = gethostbyname($name);
+    if (!$addr || $addr == $name) {
+      return false;
+    }
+    return geoip_country_id_by_addr($gi, $addr);
+  }
 }
 
-function geoip_country_code_by_name_v6($gi, $name) {
-  $country_id = geoip_country_id_by_name_v6($gi,$name);
-  if ($country_id !== false) {
-        return $gi->GEOIP_COUNTRY_CODES[$country_id];
+if (!function_exists('geoip_country_code_by_name_v6')) {
+  function geoip_country_code_by_name_v6($gi, $name) {
+    $country_id = geoip_country_id_by_name_v6($gi,$name);
+    if ($country_id !== false) {
+          return $gi->GEOIP_COUNTRY_CODES[$country_id];
+    }
+    return false;
   }
-  return false;
+}
+else {
+  function _geoip_country_code_by_name_v6($gi, $name) {
+    $country_id = geoip_country_id_by_name_v6($gi,$name);
+    if ($country_id !== false) {
+          return $gi->GEOIP_COUNTRY_CODES[$country_id];
+    }
+    return false;
+  }
 }
 
 if (!function_exists('geoip_country_code_by_name')) {
@@ -449,12 +486,23 @@ else {
   }
 }
 
-function geoip_country_name_by_name_v6($gi, $name) {
-  $country_id = geoip_country_id_by_name_v6($gi,$name);
-  if ($country_id !== false) {
-        return $gi->GEOIP_COUNTRY_NAMES[$country_id];
+if (!function_exists('geoip_country_name_by_name_v6')) {
+  function geoip_country_name_by_name_v6($gi, $name) {
+    $country_id = geoip_country_id_by_name_v6($gi,$name);
+    if ($country_id !== false) {
+          return $gi->GEOIP_COUNTRY_NAMES[$country_id];
+    }
+    return false;
   }
-  return false;
+}
+else {
+  function _geoip_country_name_by_name_v6($gi, $name) {
+    $country_id = geoip_country_id_by_name_v6($gi,$name);
+    if ($country_id !== false) {
+          return $gi->GEOIP_COUNTRY_NAMES[$country_id];
+    }
+    return false;
+  }
 }
 
 if (!function_exists('geoip_country_name_by_name')) {

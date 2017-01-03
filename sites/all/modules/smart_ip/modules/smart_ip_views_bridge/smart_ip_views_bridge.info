@@ -19,9 +19,9 @@ files[] = views/smart_ip_views_bridge_openlayers_proximity_handler_sort.inc
 files[] = tests/smart_ip_views_bridge.test
 dependencies[] = views
 dependencies[] = smart_ip
-; Information added by Drupal.org packaging script on 2016-09-28
-version = "7.x-2.47"
+; Information added by Drupal.org packaging script on 2016-12-23
+version = "7.x-2.50"
 core = "7.x"
 project = "smart_ip"
-datestamp = "1475036351"
+datestamp = "1482486509"
 
