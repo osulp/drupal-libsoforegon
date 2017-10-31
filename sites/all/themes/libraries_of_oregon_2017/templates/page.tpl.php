@@ -112,14 +112,14 @@
       </div>
     <?php endif; ?>
   </div>
-  // Get the Large Image url so we can use it as a background style.
-<?php if (isset($industry_image)) {
+<!-- // Get the Large Image url so we can use it as a background style.
+php if (isset($industry_image)) {
   $background = "background-image: url('" . $industry_image . "')";
 }
 else {
   $background = 'background-color: #818483';
 }
-?>
+?> 
 
 <div class="banner banner__wrapper banner__custom-image header-banner <?php print $classes; ?>" role="banner" style="<?php print $background; ?>;">
 
@@ -131,7 +131,7 @@ else {
     </div>
   </div>
 
-</div>
+</div>-->
 </header>
 
 <div class="main-container <?php print $container_class; ?>">

@@ -92,16 +92,31 @@ h1.page-header {
         max-width: 100%;
     }
 }
+
+#navbar.container-fullwidth {
+    width: 100%;
+}
+
 /* navbar logo */
+.navbar-header{
+    margin-left: 30px;
+}
+
 a.logo.navbar-btn img{
     max-height: 30px;
+    margin-left: 30px;
 }
-a.logo.navbar-btn img:hover {
-    text-decoration: none;
+a.logo.navbar-btn:hover{
+    border-bottom: none;
 }
 
 
 /* hero image */
+img.media-element.file-default.img-responsive {
+    width: 100%;
+}
+
+
 @media (min-width: 1200px){
     .container {
         width:100%;
@@ -131,6 +146,10 @@ a.logo.navbar-btn img:hover {
 }
 #block-block-13 input[type=search]{
     color: black;
+}
+
+#block-block-13 a, #block-block-13 a:hover, #block-block-13 a:visited {
+    color: white;
 }
 
 /* three-items */
@@ -193,4 +212,21 @@ a.library-map-button:hover, a.library-website-button:hover {
 
 .library-result-title a {
     color: #101010;
+}
+
+
+/* Login page (/user) */
+
+@media (min-width: 300px){
+    #user-login{
+        margin-left: 15%;
+        margin-right: 15%;
+    }
+}
+
+@media (min-width: 1200px){
+    #user-login{
+        margin-left: 30%;
+        margin-right: 30%;
+    }
 }
