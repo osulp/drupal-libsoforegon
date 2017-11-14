@@ -154,6 +154,7 @@ img.media-element.file-default.img-responsive {
 /* three-items */
 
 #front-page-buttons {
+    padding-top: 10%;
     padding-bottom: 5%;
 }
 
@@ -175,6 +176,12 @@ div.main-page-button {
     display: flex;
     justify-content: center;
     flex-direction: column;
+}
+
+@media (max-width: 990px){
+    .main-page-button-wrapper {
+        padding-top: 12px;
+    }
 }
 
 
