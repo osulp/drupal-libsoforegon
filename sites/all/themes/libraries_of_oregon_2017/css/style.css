@@ -151,6 +151,13 @@ img.media-element.file-default.img-responsive {
     color: white;
 }
 
+
+@media (min-width: 300px){
+
+
+}
+
+@media (min-width: 750px){
 #gale-input {
     margin-left: 15px;
     width: 450px;
@@ -168,6 +175,8 @@ img.media-element.file-default.img-responsive {
     font-weight: 400; 
     font-size: 12px;
 }
+}
+
 
 /* three-items */
 
