@@ -143,6 +143,11 @@ img.media-element.file-default.img-responsive {
     flex-direction: column;
     color: white;
 }
+
+#block-block-13 h1 {
+    text-shadow: 2px 0px 1px black;
+}
+
 #block-block-13 input[type=search]{
     color: black;
 }
@@ -153,6 +158,10 @@ img.media-element.file-default.img-responsive {
 
 
 @media (min-width: 300px){
+#gale-input {
+       font-size: 24px;
+}
+
 #gale-submit {
     color: #f5f5f5;
     font-family: "Open sans", sans serif;
@@ -195,12 +204,13 @@ img.media-element.file-default.img-responsive {
 }
 
 .main-page-button {
-    background-color: rgba(0, 0, 0, 0.23);
+    background-color: rgba(0, 0, 0, 0.78);
     border-color: white;
     width: 300px;
     margin: 30px;
     padding: 30px;
     border-radius: 30px;
+    color: white;
 }
 
 h2.main-page-button-title {
