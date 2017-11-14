@@ -153,7 +153,16 @@ img.media-element.file-default.img-responsive {
 
 
 @media (min-width: 300px){
-
+#gale-input {
+    color: #f5f5f5;
+    font-family: "Open sans", sans serif;
+    font-size: 17px;
+    background-color: rgba(0, 0, 0, 0.23);
+    border-radius: 50%;
+    border-color: white;
+    height: 3em;
+    width: 3em;
+}
 
 }
 
