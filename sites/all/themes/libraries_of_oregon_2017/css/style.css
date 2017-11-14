@@ -151,6 +151,24 @@ img.media-element.file-default.img-responsive {
     color: white;
 }
 
+#gale-input {
+    margin-left: 15px;
+    width: 450px;
+}
+
+#gale-submit {
+    visibility: hidden; 
+    transition: none; 
+    text-align: inherit; 
+    line-height: 17px; 
+    border-width: 0px; 
+    margin: 0px; 
+    padding: 0px; 
+    letter-spacing: 0px; 
+    font-weight: 400; 
+    font-size: 12px;
+}
+
 /* three-items */
 
 #front-page-buttons {
