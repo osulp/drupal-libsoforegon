@@ -136,8 +136,6 @@ img.media-element.file-default.img-responsive {
 
 /* search box */
 #block-block-13{
-    margin-top: -50%;
-    margin-bottom: 40%;
     align-items: center;
     display: flex;
     justify-content: center;
@@ -230,3 +228,5 @@ a.library-map-button:hover, a.library-website-button:hover {
         margin-right: 30%;
     }
 }
+
+
