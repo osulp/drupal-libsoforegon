@@ -1,0 +1,297 @@
+/**
+ * Place your custom styles here.
+ */
+/* basics */
+@import url('https://fonts.googleapis.com/css?family=Josefin+Slab|Open+Sans|Playfair+Display:700|Raleway');
+
+/* FONT STACKS
+font-family: 'Josefin Slab', serif;
+font-family: 'Playfair Display', serif;
+font-family: 'Open Sans', sans-serif; 
+*/
+
+h1 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 4em;
+
+}
+
+h2, h3 {
+    font-family: 'Raleway', sans-serif;
+}
+
+body {
+    font-family: 'Raleway', sans-serif;
+}
+
+/* override bootstrap margins */
+div.main-container.container {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+}
+
+/* remove bootstrap custom page name */
+h1.page-header {
+    display: none;
+}
+
+
+/* navbar */
+#navbar {
+    position: absolute;
+}
+.navbar {
+    border-radius: 0;
+    z-index: 1000;
+    margin-bottom: 0px;
+}
+#navbar .navbar-brand {
+    color: white;
+}
+#navbar .navbar-nav>li>a {
+    color:white;
+}
+
+.navbar a {
+    text-decoration: none;
+    border-bottom: 1px solid rgba(16, 16, 16, 0);
+    -webkit-transition: border 200ms ease;
+    -moz-transition: border 200ms ease;
+    -ms-transition: border 200ms ease;
+    -o-transition: border 200ms ease;
+    transition: border 200ms ease; 
+}
+
+.navbar a:hover {
+    border-bottom: 1px solid #FFFFFF;
+}
+
+@media (min-width: 768px){
+.navbar-nav{
+        float: right;
+    }
+}
+.navbar.container, .navbar.container-fluid {
+    margin-top: 0px;
+}
+
+@media (min-width: 1200px) {
+    .navbar.container{
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 992px){
+    .navbar.container{
+        max-width: 100%;
+    }
+}
+@media (min-width: 768px){
+    .navbar.container{
+        max-width: 100%;
+    }
+}
+
+#navbar.container-fullwidth {
+    width: 100%;
+}
+
+/* navbar logo */
+.navbar-header{
+    margin-left: 30px;
+}
+
+a.logo.navbar-btn img{
+    max-height: 30px;
+    margin-left: 30px;
+}
+a.logo.navbar-btn:hover{
+    border-bottom: none;
+}
+
+
+/* hero image */
+img.media-element.file-default.img-responsive {
+    width: 100%;
+}
+
+
+@media (min-width: 1200px){
+    .container {
+        width:100%;
+    }
+}
+@media (min-width: 992px){
+    .container {
+        width: 100%;
+    }
+}
+
+@media (min-width: 768px){
+    .container {
+        width: 100%;
+    }
+}
+
+/* search box */
+#block-block-13{
+    margin-top: 15%;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    color: white;
+}
+
+#block-block-13 h1 {
+    text-shadow: 2px 0px 1px black;
+}
+
+#block-block-13 input[type=search]{
+    color: black;
+}
+
+#block-block-13 a, #block-block-13 a:hover, #block-block-13 a:visited {
+    color: white;
+}
+
+
+@media (min-width: 300px){
+#gale-input {
+       font-size: 24px;
+}
+
+#gale-submit {
+    color: #f5f5f5;
+    font-family: "Open sans", sans serif;
+    font-size: 17px;
+    background-color: rgba(0, 0, 0, 0.23);
+    border-radius: 50%;
+    border-color: white;
+    height: 3em;
+    width: 3em;
+}
+
+}
+
+@media (min-width: 750px){
+#gale-input {
+    margin-left: 15px;
+    width: 450px;
+}
+
+#gale-submit {
+    visibility: hidden; 
+    transition: none; 
+    text-align: inherit; 
+    line-height: 17px; 
+    border-width: 0px; 
+    margin: 0px; 
+    padding: 0px; 
+    letter-spacing: 0px; 
+    font-weight: 400; 
+    font-size: 12px;
+}
+}
+
+
+/* three-items */
+
+#front-page-buttons {
+    padding-top: 10%;
+    padding-bottom: 5%;
+}
+
+.main-page-button {
+    background-color: rgba(0, 0, 0, 0.78);
+    border-color: white;
+    width: 300px;
+    margin: 30px;
+    padding: 30px;
+    border-radius: 30px;
+    color: white;
+}
+
+h2.main-page-button-title {
+    text-align: center;
+}
+
+div.main-page-button {
+    margin: auto;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+@media (max-width: 990px){
+    .main-page-button-wrapper {
+        padding-top: 12px;
+    }
+}
+
+
+/* search for liberaries */
+
+@media (min-width: 320px){
+    #library-search-layout {
+        margin-left:30px;
+    }
+}
+
+@media (min-width: 750px){
+    #library-search-layout {
+        margin-left:100px;
+    }
+}
+
+.librarylinks {
+    margin: 15px 0 30px 0;
+}
+
+/* submit button */
+#edit-submit-libraries-by-county{
+    background-color: #101010;
+    color: #f7f7ff;
+    border-radius: 2px;
+    border-color: #101010;
+    padding: 6px 20px;
+}
+
+/* google map and website buttons */
+a.library-map-button, a.library-website-button {
+    border: 2px solid #101010;
+    background-color: white;
+    border-radius: 2px;
+    color: black;
+}
+
+a.library-map-button:hover, a.library-website-button:hover {
+    background-color: #101010;
+    color: white;
+    text-decoration: none;
+}
+
+.library-result-title a {
+    color: #101010;
+}
+
+
+/* Login page (/user) */
+
+@media (min-width: 300px){
+    #user-login{
+        margin-left: 15%;
+        margin-right: 15%;
+    }
+}
+
+@media (min-width: 1200px){
+    #user-login{
+        margin-left: 30%;
+        margin-right: 30%;
+    }
+}
+
+
