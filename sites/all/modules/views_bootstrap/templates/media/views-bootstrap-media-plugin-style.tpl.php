@@ -7,7 +7,7 @@
     <?php foreach ($items as $key => $item): ?>
       <li class="media">
         <?php if ($item['image_field']): ?>
-          <div class="media-left">
+          <div class="pull-left">
             <?php print $item['image_field'] ?>
           </div>
         <?php endif ?>
