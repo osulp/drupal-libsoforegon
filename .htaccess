@@ -70,10 +70,10 @@ DirectoryIndex index.php index.html index.htm
 
   # Force HTTPS for site vistors.
   # Added 2016-10-19 ME
-  RewriteCond %{HTTPS} off [OR]
-  RewriteCond %{HTTP_HOST} ^www.librariesoforegon\.org*
-  RewriteRule ^(.*)$ https://librariesoforegon.org/$1 [L,R=301]
-  
+  #RewriteCond %{HTTPS} off [OR]
+  #RewriteCond %{HTTP_HOST} ^www.librariesoforegon\.org*
+  #RewriteRule ^(.*)$ https://librariesoforegon.org/$1 [L,R=301]
+  #^^^^^Add this back in ^^^^^^
 
   # Make sure Authorization HTTP header is available to PHP
   # even when running as CGI or FastCGI.
