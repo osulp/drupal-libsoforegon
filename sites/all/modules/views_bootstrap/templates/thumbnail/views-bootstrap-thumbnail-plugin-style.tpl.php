@@ -6,6 +6,7 @@
  * - $rows contains a nested array of rows. Each row contains an array of
  *   columns.
  * - $column_type contains a number (default Bootstrap grid system column type).
+ * - $class_prefix defines the default prefix to use for column classes.
  *
  * @ingroup views_templates
  */
@@ -19,30 +20,39 @@
   <?php if ($options['alignment'] == 'horizontal'): ?>
 
     <?php foreach ($items as $row): ?>
-      <ul class="thumbnails">
-        <?php foreach ($row['content'] as $column): ?>
-          <li class="span<?php print $column_type ?>">
+      <div class="row">
+        <?php foreach ($row['content'] as $key => $column): ?>
+          <div class="<?php print $col_classes ?>">
             <div class="thumbnail">
               <?php print $column['content'] ?>
             </div>
-          </li>
+          </div>
+
+          <?php /* Add clearfix divs if required */ ?>
+          <?php if ($options['columns_horizontal'] == -1 && !empty($options['clear_columns']) && $key != 0): ?>
+            <?php foreach ($clearfix as $screen => $count): ?>
+              <?php if (($key + 1) % $count == 0): ?>
+                <div class="clearfix visible-<?php print $screen; ?>-block"></div>
+              <?php endif; ?>
+            <?php endforeach; ?>
+          <?php endif; ?>
         <?php endforeach ?>
-      </ul>
+      </div>
     <?php endforeach ?>
 
   <?php else: ?>
 
-    <ul class="thumbnails">
+    <div class="row">
       <?php foreach ($items as $column): ?>
-        <li class="span<?php print $column_type ?>">
+        <div class="<?php print $col_classes ?>">
           <?php foreach ($column['content'] as $row): ?>
             <div class="thumbnail">
               <?php print $row['content'] ?>
             </div>
           <?php endforeach ?>
-        </li>
+        </div>
       <?php endforeach ?>
-    </ul>
+    </div>
 
   <?php endif ?>
 </div>
