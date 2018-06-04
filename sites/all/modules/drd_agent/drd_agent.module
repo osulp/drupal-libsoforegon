@@ -1,0 +1,130 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ *
+ * @return array
+ *   An array of all defined menu items by this module.
+ */
+function drd_agent_menu() {
+  $items['drd-agent'] = array(
+    'title' => 'DRD Agent Callback',
+    'page callback' => 'drd_agent',
+    'access callback' => TRUE,
+    'delivery callback' => 'drd_agent_deliver',
+    'type' => MENU_CALLBACK,
+  );
+  $items['drd-agent-crypt'] = array(
+    'title' => 'DRD Agent Callback',
+    'page callback' => 'drd_agent_crypt',
+    'access callback' => TRUE,
+    'delivery callback' => 'drd_agent_deliver',
+    'type' => MENU_CALLBACK,
+  );
+  $items['drd-agent-authorize-secret'] = array(
+    'title' => 'Authorize Dashboard',
+    'page callback' => 'drd_agent_authorize_secret',
+    'access callback' => TRUE,
+    'delivery callback' => 'drd_agent_deliver',
+    'type' => MENU_CALLBACK,
+  );
+  $items['drd-agent-authorize'] = array(
+    'title' => 'Authorize Dashboard',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_agent_authorize'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'drd_agent.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['admin/config/system/drd'] = array(
+    'title' => 'DRD',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('drd_agent_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'drd_agent.admin.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implements hook_admin_paths().
+ */
+function drd_agent_admin_paths() {
+  return array(
+    'drd-agent' => TRUE,
+    'drd-agent-crypt' => TRUE,
+    'drd-agent-authorize' => TRUE,
+  );
+}
+
+/**
+ * Callback to download the DRD library if required,
+ *
+ * @param bool $force
+ *
+ * @throws \Exception
+ */
+function _drd_get_lib($force = FALSE) {
+  $archive = 'drd-' . $_SERVER['HTTP_X_DRD_VERSION'] . '.phar';
+  $uri = 'temporary://' . $archive;
+  if ($force || !file_exists($uri)) {
+    $response = drupal_http_request('https://cgit.drupalcode.org/drd_agent_lib/plain/' . $archive);
+    if (empty($response->code) || $response->code != 200) {
+      throw new Exception('DRD Library not available');
+    }
+    file_put_contents($uri, $response->data);
+  }
+  require_once($uri);
+  if (!defined('DRD_BASE')) {
+    // Looks like loading the phar file failed. We've seen this on a Plesk and
+    // OpCache combination (@see https://www.drupal.org/node/2892316) and hence
+    // we try to disable opcache only for this request and load the phar again.
+    ini_set('opcache.enable', 0);
+    require($uri);
+  }
+}
+
+/**
+ * Menu callback to execute the remote request for an action.
+ *
+ * @return array
+ * @throws \Exception
+ */
+function drd_agent() {
+  _drd_get_lib();
+  return \Drupal\drd\Agent\Action\Base::run(7, variable_get('drd_agent_debug_mode', FALSE));
+}
+
+/**
+ * Menu callback to return an array containing supported crypt methods.
+ *
+ * @return string
+ * @throws \Exception
+ */
+function drd_agent_crypt() {
+  _drd_get_lib();
+  return base64_encode(json_encode(\Drupal\drd\Crypt\Base::getMethods()));
+}
+
+/**
+ * Menu callback to authorize a DRD instance by a secret.
+ *
+ * @return string
+ * @throws \Exception
+ */
+function drd_agent_authorize_secret() {
+  _drd_get_lib();
+  return \Drupal\drd\Agent\Action\Base::authorizeBySecret(7, variable_get('drd_agent_debug_mode', FALSE));
+}
+
+/**
+ * Callback to deliver the result of the action in json format.
+ *
+ * @param $page_callback_result
+ */
+function drd_agent_deliver($page_callback_result) {
+  drupal_add_http_header('Content-Type', 'text/plain; charset=utf-8');
+  drupal_add_http_header('X-DRD-Agent', $_SERVER['HTTP_X_DRD_VERSION']);
+  print $page_callback_result;
+  ajax_footer();
+}
