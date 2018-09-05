@@ -25,7 +25,7 @@ class smart_ip_views_bridge_handler_field_latitude extends smart_ip_views_bridge
       return $latitude;
     }
     else {
-      return theme('smart_ip_longitude_dms', array('view' => $latitude));
+      return theme('smart_ip_latitude_dms', array('view' => $latitude));
     }
   }
 }
