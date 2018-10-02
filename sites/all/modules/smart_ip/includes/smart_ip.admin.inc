@@ -179,10 +179,10 @@ function smart_ip_admin_settings($form, &$form_state) {
     ),
   );
   
-  // Form for entering IPInfoDB key
+  // Form for entering IPInfoDB API key
   $form['smart_ip_data_source_selection']['smart_ip_ipinfodb_key'] = array(
     '#type'          => 'textfield',
-    '#title'         => t('IPInfoDB key'),
+    '#title'         => t('IPInfoDB API key'),
     '#description'   => t('The use of IPInfoDB.com service requires API key. Registration for the new API key is free, sign up !here.', array('!here' => l(t('here'), 'http://www.ipinfodb.com/register.php'))),
     '#default_value' => variable_get('smart_ip_ipinfodb_key', ''),
     '#states'        => array(
@@ -500,22 +500,40 @@ function smart_ip_admin_settings($form, &$form_state) {
     '#weight'      => 3,
   );
   
+  // Form to select Request Timeout
+  $form['smart_ip_preferences']['smart_ip_get_location_timeout'] = array(
+    '#type'           => 'select',
+    '#title'         => t('Request Timeout'),
+    '#description'   => t('This timeout (in seconds) will be set for all requests to external IP location services via drupal_http_request()'),
+    '#options'       => drupal_map_assoc(array(1, 2, 5, 10, 20, 30)),
+    '#default_value' => variable_get('smart_ip_get_location_timeout', 2),
+  );
+  
   // Form to select user roles to geolocate
   drupal_add_js(drupal_get_path('module', 'smart_ip') . '/js/smart_ip-admin.js');
+  $roles = user_roles();
   $form['smart_ip_preferences']['smart_ip_roles_to_geolocate'] = array(
     '#type'          => 'checkboxes',
     '#title'         => t('Roles To Geolocate'),
     '#default_value' => variable_get('smart_ip_roles_to_geolocate', array(DRUPAL_AUTHENTICATED_RID)),
-    '#options'       => user_roles(),
+    '#options'       => $roles,
     '#description'   => t('Select the roles you wish to geolocate. Note that selecting the anonymous role will add substantial overhead.'),
   );
-  
+
+  $eu_visitor_dont_save = t("Don't save location details of visitors from EU countries");
   // Form to turn on save user location in $user object upon registration
   $form['smart_ip_preferences']['smart_ip_save_user_location_creation'] = array(
     '#type'          => 'checkbox',
     '#title'         => t("Save user's location details upon creation"),
     '#default_value' => variable_get('smart_ip_save_user_location_creation', TRUE),
-    '#description'   => t("One time storing of user's location details upon registration."),
+    '#description'   => t("One time storing of user's location details upon registration. Note: If %label is enabled, it will not save visitors from EU countries their location details", array('%label' => $eu_visitor_dont_save)),
+  );
+
+  $form['smart_ip_preferences']['smart_ip_eu_visitor_dont_save'] = array(
+    '#type'          => 'checkbox',
+    '#title'         => $eu_visitor_dont_save,
+    '#default_value' => variable_get('smart_ip_eu_visitor_dont_save', FALSE),
+    '#description'   => t("If a visitor's country is an EU country, its location details will not be saved."),
   );
   
   $form['smart_ip_preferences']['smart_ip_allowed_pages'] = array(
@@ -530,25 +548,44 @@ function smart_ip_admin_settings($form, &$form_state) {
   $form['smart_ip_debug_tool'] = array(
     '#type'        => 'fieldset',
     '#title'       => t('Smart IP debug tool'),
+    '#description' => t(
+      'Note: Make sure that the debug role is also enabled in "Roles to 
+        Geolocate" under "Smart IP settings" above. If a user has multiple 
+        roles, the precedence of what debug IP address of a role will be used is 
+        determined in alphabetical order but the "authenticated role will always 
+        be the last priority. Eg. if a user has "authenticated", "editor" and 
+        "moderator" roles, (assuming all debug roles are enabled) the debug IP 
+        address that will be used is the "editor" role.'),
     '#collapsible' => FALSE,
     '#collapsed'   => FALSE,
     '#weight'      => 5,
     '#access'      => $can_query_ip,
   );
 
-  // Form to turn on debugging
-  $form['smart_ip_debug_tool']['smart_ip_debug'] = array(
-    '#type'          => 'checkbox',
-    '#title'         => t('Admin debug'),
-    '#default_value' => variable_get('smart_ip_debug', FALSE),
-    '#description'   => t('Enables administrator to spoof an IP Address for debugging purposes.'),
-  );
+  $roles_debug    = variable_get('smart_ip_roles_in_debug_mode', array());
+  $roles_debug_ip = variable_get('smart_ip_roles_in_debug_mode_ip', array());
+  foreach ($roles as $role_id => $role) {
+    // Form to turn on debugging
+    $form['smart_ip_debug_tool']["smart_ip_debug_$role_id"] = array(
+      '#type' => 'checkbox',
+      '#title' => t('@role role in debug mode', array(
+        '@role' => $role,
+      )),
+      '#default_value' => (isset($roles_debug[$role_id]) && $roles_debug[$role_id]) ? TRUE : FALSE,
+      '#description' => t('Enables @role role to spoof an IP Address for debugging purposes.', array(
+        '@role' => $role,
+      )),
+    );
 
-  $form['smart_ip_debug_tool']['smart_ip_test_ip_address'] = array(
-    '#type'          => 'textfield',
-    '#title'         => t('IP address to use for testing'),
-    '#default_value' => variable_get('smart_ip_test_ip_address', ip_address()),
-  );
+    $form['smart_ip_debug_tool']["smart_ip_test_ip_address_$role_id"] = array(
+      '#type' => 'textfield',
+      '#title' => t('IP address to use for @role role testing', array(
+        '@role' => $role,
+      )),
+      '#default_value' => isset($roles_debug_ip[$role_id]) ? $roles_debug_ip[$role_id] : NULL,
+    );
+  }
+
   $form = system_settings_form($form);
   $form['actions']['#weight'] = 100;
 
@@ -606,13 +643,14 @@ function _smart_ip_bin_database_update_submit($form, &$form_state) {
     // Utility functions for loading database from external sources
     module_load_include('inc', 'smart_ip', 'includes/smart_ip.utility');
     // Force the update even if the database is up-to-date
-    if ($form_state['values']['smart_ip_source'] == 'maxmind_bin') {
+    if ($form_state['values']['smart_ip_source'] == 'maxmind_bin' && $form_state['values']['smart_ip_maxmind_bin_db_auto_update']) {
       smart_ip_maxmind_bin_db_update($form_state['values']['smart_ip_maxmind_license'], FALSE, TRUE);
+      $form_state['storage']['smart_ip_db_message'] = t('The MaxMind binary database has been updated.');
     }
-    elseif ($form_state['values']['smart_ip_source'] == 'maxmindgeoip2_bin') {
+    elseif ($form_state['values']['smart_ip_source'] == 'maxmindgeoip2_bin' && $form_state['values']['smart_ip_maxmind_geoip2_bin_db_auto_update']) {
       smart_ip_maxmind_bin_db_update($form_state['values']['smart_ip_maxmind_geoip2_license'], FALSE, TRUE);
+      $form_state['storage']['smart_ip_db_message'] = t('The MaxMind binary database has been updated.');
     }
-    $form_state['storage']['smart_ip_db_message'] = t('The MaxMind binary database has been updated.');
     $form_state['rebuild'] = TRUE;
   }
 }
@@ -627,6 +665,7 @@ function _smart_ip_lookup_submit($form, &$form_state) {
   // Return results of manual lookup
   $location = smart_ip_get_location($lookup);
   if (isset($location['latitude']) && isset($location['longitude'])) {
+    $is_eu_country = $location['is_eu_country'] ? t('Yes') : t('No');
     $message = '<p>' . t('IP Address @ip is assigned to the following location details:', array('@ip' => $lookup)) . '</p><dl>' .
       '<dt>' . t('Country:') . '</dt>' .
       '<dd>' . t('%country', array('%country' => $location['country'])) . '</dd>' .
@@ -642,6 +681,8 @@ function _smart_ip_lookup_submit($form, &$form_state) {
       '<dd>' . t('%latitude', array('%latitude' => $location['latitude'])) . '</dd>' .
       '<dt>' . t('Longitude:') . '</dt>' .
       '<dd>' . t('%longitude', array('%longitude' => $location['longitude'])) . '</dd>' .
+      '<dt>' . t('Is EU country:') . '</dt>' .
+      '<dd>' . $is_eu_country . '</dd>' .
       '<dt>' . t('Time zone:') . '</dt>' .
       '<dd>' . t('%time_zone', array('%time_zone' => $location['time_zone'])) . '</dd>' .
     '</dl>';
@@ -803,9 +844,14 @@ function smart_ip_admin_settings_validate($form, &$form_state) {
       }
     }
   }
-  if ($form_state['values']['smart_ip_debug'] == TRUE && empty($form_state['values']['smart_ip_test_ip_address'])) {
-    form_set_error('smart_ip_test_ip_address', t('Please enter the IP address to use for testing.'));
-  }  
+  $roles = user_roles();
+  foreach ($roles as $role_id => $role) {
+    if ($form_state['values']["smart_ip_debug_$role_id"] == TRUE && empty($form_state['values']["smart_ip_test_ip_address_$role_id"])) {
+      form_set_error("smart_ip_test_ip_address_$role_id", t('Please enter the IP address to use for @role testing.', array(
+        '@role' => $role,
+      )));
+    }
+  }
 }
 
 /**
@@ -854,65 +900,18 @@ function smart_ip_admin_settings_submit($form, &$form_state) {
     smart_ip_maxmind_bin_db_update($form_state['values']['smart_ip_maxmind_geoip2_license']);
   }
 
-  // Check to see if debug set
-  if ($form_state['values']['smart_ip_debug']) {
-    // Debug on
-    $ip = $form_state['values']['smart_ip_test_ip_address'];
-    $smart_ip_session = smart_ip_session_get('smart_ip');
-    $smart_ip_session['debug_mode'] = TRUE;
-    smart_ip_session_set('smart_ip', $smart_ip_session);
-    $location = smart_ip_get_location($ip);
-    // Immediately set the debug mode
-    variable_set('smart_ip_debug', TRUE);
-    $type = t('debug');
+  // Save the role based debug mode
+  $roles = user_roles();
+  $roles_debug    = variable_get('smart_ip_roles_in_debug_mode', array());
+  $roles_debug_ip = variable_get('smart_ip_roles_in_debug_mode_ip', array());
+  foreach ($roles as $role_id => $role) {
+    $roles_debug[$role_id]    = $form_state['values']["smart_ip_debug_$role_id"];
+    $roles_debug_ip[$role_id] = $form_state['values']["smart_ip_test_ip_address_$role_id"];
+    unset(
+      $form_state['values']["smart_ip_debug_$role_id"],
+      $form_state['values']["smart_ip_test_ip_address_$role_id"]
+    );
   }
-  else {
-    // Debug off - make sure we set/reset to their real values
-    $location = smart_ip_get_current_visitor_location_data();
-    $ip   = $location['ip_address'];
-    $type = t('actual');
-  }
-  if ($location) {
-    drupal_set_message(t('Using @type IP: %ip / Country: %country / Region: %region / City: %city / Postal code: %zip / Longitude: %long / Latitude: %lat / Time zone: %time_zone', array(
-      '@type'      => $type,
-      '%ip'        => $ip, 
-      '%country'   => isset($location['country']) ? $location['country'] : '',
-      '%region'    => isset($location['region']) ? $location['region'] : '',
-      '%city'      => isset($location['city']) ? $location['city'] : '',
-      '%zip'       => isset($location['zip']) ? $location['zip'] : '',
-      '%long'      => isset($location['longitude']) ? $location['longitude'] : '',
-      '%lat'       => isset($location['latitude']) ? $location['latitude'] : '',
-      '%time_zone' => isset($location['time_zone']) ? $location['time_zone'] : '',
-    )));
-    $smart_ip_session = smart_ip_session_get('smart_ip');
-    // Finally if it has been determined, store the location in the $user object
-    if ($form_state['values']['smart_ip_debug']) {
-      smart_ip_set_user_data($user, $location);
-      $smart_ip_session['location'] = $location;
-      smart_ip_session_set('smart_ip', $smart_ip_session);
-      if (module_exists('device_geolocation')) {
-        smart_ip_session_set('device_geolocation', NULL);
-        device_geolocation_get_coordinates();
-      }
-    }
-    else {
-      if (isset($smart_ip_session['debug_mode']) && !is_null($smart_ip_session['debug_mode'])) {
-        unset($user->data['geoip_location'], $smart_ip_session['debug_mode']);
-        $smart_ip_session['location'] = $location;
-        smart_ip_session_set('device_geolocation', NULL);
-        smart_ip_session_set('smart_ip', $smart_ip_session);
-        smart_ip_set_user_data($user, $location);
-        if (module_exists('device_geolocation')) {
-          device_geolocation_get_coordinates();
-        }
-      }
-      else {
-        smart_ip_set_session_data($location);
-        smart_ip_set_user_data($user, $smart_ip_session['location']);
-      }
-    }
-  }
-  else {
-    drupal_set_message(t('IP Address @ip is not assigned to any location.', array('@ip' => $ip)));
-  }
+  variable_set('smart_ip_roles_in_debug_mode', $roles_debug);
+  variable_set('smart_ip_roles_in_debug_mode_ip', $roles_debug_ip);
 }
