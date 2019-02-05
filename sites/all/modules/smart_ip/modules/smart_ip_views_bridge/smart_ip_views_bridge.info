@@ -12,6 +12,10 @@ files[] = views/smart_ip_views_bridge_handler_field_latitude.inc
 files[] = views/smart_ip_views_bridge_handler_field_longitude.inc
 files[] = views/smart_ip_views_bridge_handler_field_region.inc
 files[] = views/smart_ip_views_bridge_handler_field_zip.inc
+files[] = views/smart_ip_views_bridge_handler_filter_location_country.inc
+files[] = views/smart_ip_views_bridge_handler_filter_location_region.inc
+files[] = views/smart_ip_views_bridge_handler_argument_location_country.inc
+files[] = views/smart_ip_views_bridge_handler_argument_location_region.inc
 files[] = views/smart_ip_views_bridge_openlayers_proximity_handler_field.inc
 files[] = views/smart_ip_views_bridge_openlayers_proximity_handler_filter_circle.inc
 files[] = views/smart_ip_views_bridge_openlayers_proximity_handler_filter_square.inc
@@ -19,9 +23,8 @@ files[] = views/smart_ip_views_bridge_openlayers_proximity_handler_sort.inc
 files[] = tests/smart_ip_views_bridge.test
 dependencies[] = views
 dependencies[] = smart_ip
-; Information added by Drupal.org packaging script on 2016-12-23
-version = "7.x-2.50"
+; Information added by Drupal.org packaging script on 2018-09-13
+version = "7.x-2.53"
 core = "7.x"
 project = "smart_ip"
-datestamp = "1482486509"
-
+datestamp = "1536821587"

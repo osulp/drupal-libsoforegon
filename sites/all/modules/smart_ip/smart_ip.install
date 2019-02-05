@@ -4,6 +4,7 @@
  * @file
  * Installation callback for Smart IP.
  */
+define('SMART_IP_MINIMUM_PHP', '5.4');
 
 /**
  * Implements hook_requirements().
@@ -18,7 +19,7 @@ function smart_ip_requirements($phase = 'runtime') {
   // Test PHP version
   $requirements['smart_ip_php'] = array(
     'title' => $t('PHP'),
-    'value' => ($phase == 'install') ? l(phpversion(), 'admin/reports/status/php') : phpversion(),
+    'value' => ($phase == 'install') ? phpversion() : l(phpversion(), 'admin/reports/status/php'),
   );
   if (version_compare(phpversion(), SMART_IP_MINIMUM_PHP) < 0) {
     $requirements['smart_ip_php']['description'] = $t('Your PHP installation is too old. Smart IP requires at least PHP %version.', array('%version' => SMART_IP_MINIMUM_PHP));
@@ -26,7 +27,7 @@ function smart_ip_requirements($phase = 'runtime') {
   }  
 
   if ($phase == 'runtime') {
-    $correct_key = variable_set('smart_ip_correct_ipinfodb_key', FALSE);
+    $correct_key = variable_get('smart_ip_correct_ipinfodb_key', FALSE);
     if (!$correct_key) {
       $smart_ip_source = variable_get('smart_ip_source', 'ipinfodb_service');
       if ($smart_ip_source == 'ipinfodb_service') {
@@ -234,6 +235,29 @@ function smart_ip_update_7005() {
 }
 
 /**
+ * Update the admin debug mode to role based debug mode
+ */
+function smart_ip_update_7006() {
+  if (variable_get('smart_ip_debug', FALSE)) {
+    $debug_ip       = variable_get('smart_ip_test_ip_address', ip_address());
+    $roles          = user_roles();
+    $roles_debug    = array();
+    $roles_debug_ip = array();
+    foreach ($roles as $role_id => $role) {
+      $role_permissions = user_role_permissions(array($role_id => $role_id));
+      if (isset($role_permissions[$role_id]['administer smart_ip']) && $role_permissions[$role_id]['administer smart_ip']) {
+        $roles_debug[$role_id] = $role_id;
+      }
+      $roles_debug_ip[$role_id] = $debug_ip;
+    }
+    variable_set('smart_ip_roles_in_debug_mode', $roles_debug);
+    variable_set('smart_ip_roles_in_debug_mode_ip', $roles_debug_ip);
+  }
+  variable_del('smart_ip_debug');
+  variable_del('smart_ip_test_ip_address');
+}
+
+/**
  * Implements hook_uninstall().
  *
  * Removes all tables and variables inserted into the
@@ -261,11 +285,13 @@ function smart_ip_uninstall() {
   variable_del('smart_ip_blocks_csv_last_pointer');
   variable_del('smart_ip_auto_update');
   variable_del('smart_ip_last_update');
-  variable_del('smart_ip_debug');
-  variable_del('smart_ip_test_ip_address');
-  variable_del('smart_ip_allowed_pages');
-  variable_del('smart_ip_save_user_location_creation');
   variable_del('smart_ip_roles_to_geolocate');
+  variable_del('smart_ip_eu_visitor_dont_save');
+  variable_del('smart_ip_timezone_format');
+  variable_del('smart_ip_save_user_location_creation');
+  variable_del('smart_ip_allowed_pages');
+  variable_del('smart_ip_roles_in_debug_mode');
+  variable_del('smart_ip_roles_in_debug_mode_ip');
   variable_del('smart_ip_maxmind_bin_db_last_update');
   variable_del('smart_ip_maxmind_bin_db_update_error');
   variable_del('smart_ip_maxmind_license');
@@ -277,6 +303,7 @@ function smart_ip_uninstall() {
   variable_del('smart_ip_maxmind_geoip2_bin_edition');
   variable_del('smart_ip_maxmind_geoip2_license');
   variable_del('smart_ip_maxmind_geoip2_bin_db_auto_update');
-  variable_del('smart_ip_maxmind_geoip2_bin_custom_path'); 
+  variable_del('smart_ip_maxmind_geoip2_bin_custom_path');
   variable_del('cache_class_cache_smart_ip');
+  variable_del('smart_ip_get_location_timeout');
 }

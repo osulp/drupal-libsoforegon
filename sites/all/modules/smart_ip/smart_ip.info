@@ -10,14 +10,12 @@ files[] = includes/smart_ip.utility.inc
 files[] = includes/smart_ip.admin.inc
 files[] = includes/smart_ip.region_lookup.inc
 files[] = includes/smart_ip.tokens.inc
-files[] = includes/IP2Location.inc
 files[] = includes/geoip.inc
 files[] = includes/geoipcity.inc
 files[] = includes/geoipregionvars.php
 configure = admin/config/people/smart_ip
-; Information added by Drupal.org packaging script on 2016-12-23
-version = "7.x-2.50"
+; Information added by Drupal.org packaging script on 2018-09-13
+version = "7.x-2.53"
 core = "7.x"
 project = "smart_ip"
-datestamp = "1482486509"
-
+datestamp = "1536821587"
