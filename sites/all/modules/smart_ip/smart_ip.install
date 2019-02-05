@@ -287,6 +287,7 @@ function smart_ip_uninstall() {
   variable_del('smart_ip_last_update');
   variable_del('smart_ip_roles_to_geolocate');
   variable_del('smart_ip_eu_visitor_dont_save');
+  variable_del('smart_ip_timezone_format');
   variable_del('smart_ip_save_user_location_creation');
   variable_del('smart_ip_allowed_pages');
   variable_del('smart_ip_roles_in_debug_mode');
