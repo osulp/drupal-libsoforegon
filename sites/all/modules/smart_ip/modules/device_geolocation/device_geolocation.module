@@ -2,8 +2,8 @@
 
 /**
  * @file
- * Provides visitor's geographical location using client device 
- * location source that implements W3C Geolocation API and 
+ * Provides visitor's geographical location using client device
+ * location source that implements W3C Geolocation API and
  * Google Geocoding service.
  */
 
@@ -32,13 +32,13 @@ function device_geolocation_init() {
     $google_region  = variable_get('device_geolocation_google_map_region', NULL);
     $google_map_language = variable_get('device_geolocation_google_map_language', NULL);
     if ($google_map_api) {
-      $param .= "key=$google_map_api"; 
+      $param .= "key=$google_map_api";
     }
     if ($google_region) {
-      $param .= "&region=$google_region"; 
+      $param .= "&region=$google_region";
     }
     if ($google_map_language) {
-      $param .= "&language=$google_map_language"; 
+      $param .= "&language=$google_map_language";
     }
     drupal_add_js("//maps.googleapis.com/maps/api/js?$param", 'external');
     drupal_add_js(drupal_get_path('module', 'device_geolocation') . '/js/device_geolocation.js', array('scope' => 'footer', 'weight' => 1));
@@ -126,13 +126,13 @@ function device_geolocation_theme() {
 function device_geolocation_help($path, $arg) {
   switch ($path) {
     case 'admin/help#device_geolocation':
-      return '<p>' . 
+      return '<p>' .
       t("Provides visitor's geographical location using client device location source 
       that implements W3C Geolocation API whereas the coordinates are geocoded using 
       Google Geocoding service. Google Geocoding returns a more detailed location information 
       such as: street number, postal code, route, neighborhood, locality, sublocality, 
-      establishment, administrative area level 1, administrative area level 2, etc.") . 
-      '</p><p>' . 
+      establishment, administrative area level 1, administrative area level 2, etc.") .
+      '</p><p>' .
       t("Smart IP is the last fallback if W3C Geolocation API failed. Even if the visitors 
       refuses to share their location, the geographical information provided by Smart IP 
       will be used to know your visitors' geolocation details. A themeable Block content 
@@ -243,16 +243,18 @@ function device_geolocation_detector_ajax() {
     $smart_ip_session['maxmind_location'] = $smart_ip_session['location'];
     smart_ip_session_set('device_geolocation', NULL);
     unset($smart_ip_session['location']);
-    $smart_ip_session['location']['ip_address']   = $ip_address;
-    $smart_ip_session['location']['country']      = '';
-    $smart_ip_session['location']['country_code'] = '';
-    $smart_ip_session['location']['region']       = '';
-    $smart_ip_session['location']['region_code']  = '';
-    $smart_ip_session['location']['city']         = '';
-    $smart_ip_session['location']['zip']          = '';
-    $smart_ip_session['location']['latitude']     = '';
-    $smart_ip_session['location']['longitude']    = '';
-    $smart_ip_session['location']['time_zone']    = '';
+    $smart_ip_session['location']['ip_address']      = $ip_address;
+    $smart_ip_session['location']['country']         = '';
+    $smart_ip_session['location']['country_code']    = '';
+    $smart_ip_session['location']['region']          = '';
+    $smart_ip_session['location']['region_code']     = '';
+    $smart_ip_session['location']['city']            = '';
+    $smart_ip_session['location']['zip']             = '';
+    $smart_ip_session['location']['latitude']        = '';
+    $smart_ip_session['location']['longitude']       = '';
+    $smart_ip_session['location']['time_zone']       = '';
+    $smart_ip_session['location']['is_eu_country']   = '';
+    $smart_ip_session['location']['is_gdpr_country'] = '';
     foreach ($_POST as $label => $address) {
       if (!empty($address) && is_string($address) && is_string($label)) {
         $label = check_plain($label);
@@ -318,10 +320,12 @@ function device_geolocation_get_coordinates() {
       smart_ip_session_set('smart_ip', NULL);
     }
   }
+  $debug_mode = is_user_debug_mode();
+  //$debug_mode = FALSE;
   $coordinates = array(
     'latitude'   => $latitude,
     'longitude'  => $longitude,
-    'debug_mode' => is_user_debug_mode(),
+    'debug_mode' => $debug_mode,
   );
   // Send also to javascript
   drupal_add_js(array('device_geolocation' => $coordinates), 'setting');

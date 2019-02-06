@@ -13,7 +13,7 @@
  */
 function smart_ip_admin_settings($form, &$form_state) {
   $smart_ip_source = variable_get('smart_ip_source', 'ipinfodb_service');
-  
+
   // MaxMind's Apache module mod_geoip, X-GeoIP-Country: XX header and Cloudflare IP Geolocation don't support manual lookup and admin debug
   if ($smart_ip_source == 'mod_geoip' || $smart_ip_source == 'x_header' || $smart_ip_source == 'cf_header') {
     $can_query_ip = FALSE;
@@ -24,7 +24,7 @@ function smart_ip_admin_settings($form, &$form_state) {
 
   if ($smart_ip_source == 'local_db') {
     $recover = !variable_get('smart_ip_db_update_busy', FALSE) & (variable_get('smart_ip_get_zip_done', FALSE) | variable_get('smart_ip_extract_zip_done', FALSE) | variable_get('smart_ip_store_location_csv_done', FALSE));
-    // Container for database update preference forms 
+    // Container for database update preference forms
     $form['smart_ip_database_update'] = array(
       '#type'        => 'fieldset',
       '#title'       => t('Manual database update'),
@@ -64,7 +64,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       '#type'        => 'submit',
       '#value'       => t('Reset update process'),
       '#submit'      => array('_smart_ip_database_reset_update_submit'),
-      '#prefix'      => '<div>', 
+      '#prefix'      => '<div>',
       '#suffix'      => '<div class="messages warning">' . t('Caution: The "Reset update process" button above will reset (ongoing) update process and will erase the data stored in database came from maxmind CSV. Please use this function only if the update hanged. It will lead to abnormal update processing if misused.') . '</div></div>',
     );
   }
@@ -143,7 +143,7 @@ function smart_ip_admin_settings($form, &$form_state) {
     '#collapsed'   => FALSE,
     '#weight'      => 2,
   );
-  
+
   // Form for Smart IP source selection
   $private_folder = drupal_realpath(file_stream_wrapper_uri_normalize('private://smart_ip'));
   $form['smart_ip_data_source_selection']['smart_ip_source'] = array(
@@ -164,7 +164,7 @@ function smart_ip_admin_settings($form, &$form_state) {
     ),
     '#default_value' => variable_get('smart_ip_source', 'ipinfodb_service'),
   );
-  
+
   // Form to select IPInfoDB API version
   $form['smart_ip_data_source_selection']['smart_ip_use_ipinfodb_api_version'] = array(
     '#type'          => 'select',
@@ -178,7 +178,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form for entering IPInfoDB API key
   $form['smart_ip_data_source_selection']['smart_ip_ipinfodb_key'] = array(
     '#type'          => 'textfield',
@@ -255,7 +255,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form for MaxMind GeoIP2 Precision license key
   $form['smart_ip_data_source_selection']['smart_ip_maxmind_geoip_license'] = array(
     '#type'          => 'textfield',
@@ -287,7 +287,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form for entering IP2Location IPV4 binary database file path
   $form['smart_ip_data_source_selection']['smart_ip_ip2location_bin_path'] = array(
     '#type'          => 'textfield',
@@ -300,7 +300,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form for entering IP2Location IPV6 binary database file path
   $form['smart_ip_data_source_selection']['smart_ip_ip2location_ipv6_bin_path'] = array(
     '#type'          => 'textfield',
@@ -313,7 +313,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form selection for MaxMind GeoIP Legacy binary database lite or paid version
   $form['smart_ip_data_source_selection']['smart_ip_maxmind_bin_version'] = array(
     '#type'          => 'select',
@@ -347,7 +347,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form for MaxMind GeoIP Legacy binary database license key
   $form['smart_ip_data_source_selection']['smart_ip_maxmind_license'] = array(
     '#type'          => 'textfield',
@@ -393,7 +393,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form selection for MaxMind GeoIP2 binary database lite or paid version
   $form['smart_ip_data_source_selection']['smart_ip_maxmind_geoip2_bin_version'] = array(
     '#type'          => 'select',
@@ -473,7 +473,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Form to enable automatic Smart IP database update every one month
   $form['smart_ip_data_source_selection']['smart_ip_auto_update'] = array(
     '#type'          => 'select',
@@ -490,7 +490,7 @@ function smart_ip_admin_settings($form, &$form_state) {
       ),
     ),
   );
-  
+
   // Container for preference forms
   $form['smart_ip_preferences'] = array(
     '#type'        => 'fieldset',
@@ -499,7 +499,7 @@ function smart_ip_admin_settings($form, &$form_state) {
     '#collapsed'   => FALSE,
     '#weight'      => 3,
   );
-  
+
   // Form to select Request Timeout
   $form['smart_ip_preferences']['smart_ip_get_location_timeout'] = array(
     '#type'           => 'select',
@@ -508,7 +508,7 @@ function smart_ip_admin_settings($form, &$form_state) {
     '#options'       => drupal_map_assoc(array(1, 2, 5, 10, 20, 30)),
     '#default_value' => variable_get('smart_ip_get_location_timeout', 2),
   );
-  
+
   // Form to select user roles to geolocate
   drupal_add_js(drupal_get_path('module', 'smart_ip') . '/js/smart_ip-admin.js');
   $roles = user_roles();
@@ -520,7 +520,7 @@ function smart_ip_admin_settings($form, &$form_state) {
     '#description'   => t('Select the roles you wish to geolocate. Note that selecting the anonymous role will add substantial overhead.'),
   );
 
-  $eu_visitor_dont_save = t("Don't save location details of visitors from EU countries");
+  $eu_visitor_dont_save = t("Don't save location details of visitors from GDPR countries");
   // Form to turn on save user location in $user object upon registration
   $form['smart_ip_preferences']['smart_ip_save_user_location_creation'] = array(
     '#type'          => 'checkbox',
@@ -533,9 +533,30 @@ function smart_ip_admin_settings($form, &$form_state) {
     '#type'          => 'checkbox',
     '#title'         => $eu_visitor_dont_save,
     '#default_value' => variable_get('smart_ip_eu_visitor_dont_save', FALSE),
-    '#description'   => t("If a visitor's country is an EU country, its location details will not be saved."),
+    '#description'   => t("If a visitor's country is an GDPR country, its location details will not be saved."),
   );
-  
+
+  $geotimezone_exists = module_exists('geotimezone');
+  if (!$geotimezone_exists) {
+    $tz_format_desc = t('Please install and enable !module.', array(
+      '!module' => l(t('Geo Time Zone'), 'https://www.drupal.org/project/geotimezone'),
+    ));
+  }
+  else {
+    $tz_format_desc = t('Select the format of the time zone field.');
+  }
+  $form['smart_ip_preferences']['smart_ip_timezone_format'] = array(
+    '#type'        => 'select',
+    '#disabled'    => !$geotimezone_exists,
+    '#title'       => t('Time zone format'),
+    '#description' => $tz_format_desc,
+    '#default_value' => variable_get('smart_ip_timezone_format', 'identifier'),
+    '#options' => array(
+      'identifier' => t('Identifier (E.g Asia/Manila)'),
+      'offset'     => t('UTC/GMT Offset (E.g +08:00)'),
+    ),
+  );
+
   $form['smart_ip_preferences']['smart_ip_allowed_pages'] = array(
     '#title'         => t("Acquire/update user's geolocation on specific Drupal native pages"),
     '#type'          => 'textarea',
@@ -664,8 +685,9 @@ function _smart_ip_lookup_submit($form, &$form_state) {
   $lookup    = $form_state['values']['smart_ip_lookup'];
   // Return results of manual lookup
   $location = smart_ip_get_location($lookup);
-  if (isset($location['latitude']) && isset($location['longitude'])) {
-    $is_eu_country = $location['is_eu_country'] ? t('Yes') : t('No');
+  if (isset($location['country_code'])) {
+    $is_eu_country   = $location['is_eu_country'] ? t('Yes') : t('No');
+    $is_gdpr_country = $location['is_gdpr_country'] ? t('Yes') : t('No');
     $message = '<p>' . t('IP Address @ip is assigned to the following location details:', array('@ip' => $lookup)) . '</p><dl>' .
       '<dt>' . t('Country:') . '</dt>' .
       '<dd>' . t('%country', array('%country' => $location['country'])) . '</dd>' .
@@ -681,8 +703,10 @@ function _smart_ip_lookup_submit($form, &$form_state) {
       '<dd>' . t('%latitude', array('%latitude' => $location['latitude'])) . '</dd>' .
       '<dt>' . t('Longitude:') . '</dt>' .
       '<dd>' . t('%longitude', array('%longitude' => $location['longitude'])) . '</dd>' .
-      '<dt>' . t('Is EU country:') . '</dt>' .
+      '<dt>' . t('Is EU member country:') . '</dt>' .
       '<dd>' . $is_eu_country . '</dd>' .
+      '<dt>' . t('Is GDPR country:') . '</dt>' .
+      '<dd>' . $is_gdpr_country . '</dd>' .
       '<dt>' . t('Time zone:') . '</dt>' .
       '<dd>' . t('%time_zone', array('%time_zone' => $location['time_zone'])) . '</dd>' .
     '</dl>';
@@ -697,7 +721,7 @@ function _smart_ip_lookup_submit($form, &$form_state) {
 function smart_ip_admin_settings_validate($form, &$form_state) {
   $list = check_plain($form_state['values']['smart_ip_allowed_pages']);
   $form_state['values']['smart_ip_allowed_pages'] = str_replace('&lt;front&gt;', '<front>', $list);
-  
+
   if ($form_state['values']['smart_ip_source'] == 'local_db') {
     $db_path = drupal_realpath(file_stream_wrapper_uri_normalize('private://smart_ip'));
     if (empty($db_path)) {
@@ -712,7 +736,7 @@ function smart_ip_admin_settings_validate($form, &$form_state) {
   }
   if ($form_state['values']['smart_ip_source'] == 'cf_header' && !isset($_SERVER['HTTP_CF_IPCOUNTRY'])) {
     form_set_error('smart_ip_source', t('Your site is not using Cloudflare CDN or your Cloudflare "IP Geolocation" is disabled.'));
-  } 
+  }
   if ($form_state['values']['smart_ip_source'] == 'ipinfodb_service' && empty($form_state['values']['smart_ip_ipinfodb_key'])) {
     form_set_error('smart_ip_ipinfodb_key', t('Please provide IPInfoDB API key.'));
   }
@@ -735,8 +759,8 @@ function smart_ip_admin_settings_validate($form, &$form_state) {
       else {
         // Check IP2Location binary database IPV4 file if valid
         try {
-          module_load_include('php', 'smart_ip', 'includes/vendor/autoload');          
-          $location_data = new IP2Location\Database($form_state['values']['smart_ip_ip2location_bin_path'], IP2Location\Database::FILE_IO);          
+          module_load_include('php', 'smart_ip', 'includes/vendor/autoload');
+          $location_data = new IP2Location\Database($form_state['values']['smart_ip_ip2location_bin_path'], IP2Location\Database::FILE_IO);
           $record = $location_data->lookup('8.8.8.8', IP2Location\Database::COUNTRY);
           if (strtotime($location_data->getDate()) <= 0 || empty($record['countryCode'])) {
             form_set_error('smart_ip_ip2location_bin_path', t('The IP2Location binary database IPV4 file is not valid or corrupted.'));
@@ -757,8 +781,8 @@ function smart_ip_admin_settings_validate($form, &$form_state) {
       else {
         // Check IP2Location binary database IPV6 file if valid
         try {
-          module_load_include('php', 'smart_ip', 'includes/vendor/autoload');          
-          $location_data = new IP2Location\Database($form_state['values']['smart_ip_ip2location_ipv6_bin_path'], IP2Location\Database::FILE_IO);          
+          module_load_include('php', 'smart_ip', 'includes/vendor/autoload');
+          $location_data = new IP2Location\Database($form_state['values']['smart_ip_ip2location_ipv6_bin_path'], IP2Location\Database::FILE_IO);
           $record = $location_data->lookup('2001:4860:4860::8888', IP2Location\Database::COUNTRY);
           if (strtotime($location_data->getDate()) <= 0 || empty($record['countryCode'])) {
             form_set_error('smart_ip_ip2location_ipv6_bin_path', t('The IP2Location binary database IPV6 file is not valid or corrupted.'));
@@ -864,7 +888,7 @@ function _smart_ip_lookup_js($form, $form_state) {
   $commands[] = ajax_command_remove('#lookup-message');
   $commands[] = ajax_command_after('#edit-smart-ip-lookup-button', '<div id="lookup-message" class="messages"></div>');
   $commands[] = ajax_command_html('#lookup-message', $form_state['storage']['smart_ip_message']);
-  return array('#type' => 'ajax', '#commands' => $commands);  
+  return array('#type' => 'ajax', '#commands' => $commands);
 }
 
 /**
@@ -883,7 +907,7 @@ function smart_ip_admin_settings_submit($form, &$form_state) {
   variable_set('smart_ip_roles_to_geolocate', $roles_to_geolocate);
   // Exclude unnecessary elements from being saved in variable table
   unset(
-    $form_state['values']['smart_ip_lookup'], 
+    $form_state['values']['smart_ip_lookup'],
     $form_state['values']['smart_ip_csv_source'],
     $form_state['values']['smart_ip_roles_to_geolocate']
   );

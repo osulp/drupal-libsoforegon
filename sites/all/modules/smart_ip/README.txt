@@ -38,6 +38,7 @@ database automatically for you.
 Requirements:
 PHP 5.4 and up
 Drupal 7.x
+Geo Time Zone
 
 Installation:
 1. Copy the extracted smart_ip directory to your Drupal sites/all/modules directory.
