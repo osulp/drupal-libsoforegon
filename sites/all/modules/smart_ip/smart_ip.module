@@ -247,7 +247,10 @@ function smart_ip_user_presave(&$edit, $account, $category) {
     $location = smart_ip_get_current_visitor_location_data();
     // Determine if saving location details of visitor from EU countries are
     // permitted.
-    $eu_visitor_dont_save = variable_get('smart_ip_eu_visitor_dont_save', FALSE) && $location['is_gdpr_country'];
+    $eu_visitor_dont_save = FALSE;
+    if (isset($location['is_gdpr_country'])) {
+      $eu_visitor_dont_save = variable_get('smart_ip_eu_visitor_dont_save', FALSE) && $location['is_gdpr_country'];
+    }
     if (!$eu_visitor_dont_save) {
       // Store the location information in the $user object
       smart_ip_set_session_data($location);
@@ -532,7 +535,7 @@ function smart_ip_get_location($ip_address = NULL) {
       }
     }
     else {
-      watchdog('smart_ip', 'The MaxMind GeoIP Legacy Web Service request from %site seems to be broken, due to "%error".', array('%site' => $smart_ip_source, '%error' => "$result->code $result->error"), WATCHDOG_WARNING);
+      watchdog('smart_ip', 'The MaxMind GeoIP Legacy Web Service request from %site seems to be broken, due to "%error".', array('%site' => $smart_ip_source, '%error' => "$request->code $request->error"), WATCHDOG_WARNING);
     }
   }
   elseif ($smart_ip_source == 'maxmindgeoip2_service') {
@@ -540,8 +543,8 @@ function smart_ip_get_location($ip_address = NULL) {
     global $language;
     $lang = $language->language;
     $request  = drupal_http_request(smart_ip_get_maxmindgeoip2_url($ip_address), $request_options);
-    $response = drupal_json_decode($request->data);
     if (!empty($request->code) && $request->code == 200 && !empty($request->data)) {
+	  $response = drupal_json_decode($request->data);
       $result['country_code'] = isset($response['country']['iso_code']) ? $response['country']['iso_code'] : '';
       if (isset($response['country']['names']['en'])) {
         $result['country'] = isset($response['country']['names'][$lang]) ? $response['country']['names'][$lang] : $response['country']['names']['en'];
@@ -629,7 +632,7 @@ function smart_ip_get_location($ip_address = NULL) {
       }
     }
     else {
-      watchdog('smart_ip', 'The Maxmind GeoIP2 Precision Web Service request from %site seems to be broken, due to "%error".', array('%site' => $smart_ip_source, '%error' => "$result->code $result->error"), WATCHDOG_WARNING);
+      watchdog('smart_ip', 'The Maxmind GeoIP2 Precision Web Service request from %site seems to be broken, due to "%error".', array('%site' => $smart_ip_source, '%error' => "$request->code $request->error"), WATCHDOG_WARNING);
     }
   }
   elseif ($smart_ip_source == 'maxmind_bin') {
@@ -1093,7 +1096,10 @@ function smart_ip_set_user_data($account, $location) {
   smart_ip_update_fields($location);
   // Determine if saving location details of visitor from EU countries are
   // permitted.
-  $eu_visitor_dont_save = variable_get('smart_ip_eu_visitor_dont_save', FALSE) && $location['is_gdpr_country'];
+  $eu_visitor_dont_save = FALSE;
+  if (isset($location['is_gdpr_country'])) {
+    $eu_visitor_dont_save = variable_get('smart_ip_eu_visitor_dont_save', FALSE) && $location['is_gdpr_country'];
+  }
   // Check if the user permitted to share location
   $share_location = smart_ip_session_get('smart_ip_user_share_location_permitted', FALSE, TRUE);
   if ($account->uid != 0 && $share_location && !$eu_visitor_dont_save) {
@@ -1212,7 +1218,9 @@ function smart_ip_session_set($key, $value) {
     $location = $value['location'];
     // Determine if saving location details of visitor from EU countries are
     // permitted.
-    $eu_visitor_dont_save = variable_get('smart_ip_eu_visitor_dont_save', FALSE) && $location['is_gdpr_country'];
+    if (isset($location['is_gdpr_country'])) {
+	  $eu_visitor_dont_save = variable_get('smart_ip_eu_visitor_dont_save', FALSE) && $location['is_gdpr_country'];
+    }
   }
   // Check if the user permitted to share location
   $share_location = smart_ip_session_get('smart_ip_user_share_location_permitted', FALSE, TRUE);

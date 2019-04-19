@@ -471,8 +471,12 @@ function smart_ip_maxmind_bin_db_update($license = '', $cron_run = FALSE, $force
   	return FALSE;
   }
 
-  try {   
-		if (class_exists('PharData')) {
+  try {
+    if (class_exists('Archive_Tar')) {
+      $p = new Archive_Tar(drupal_realpath($gz_name));
+      $p->extract(drupal_realpath("$path/db_tmp"));
+ 		}
+		elseif (class_exists('PharData')) {
 			$p = new PharData(drupal_realpath($gz_name));
 			$p->extractTo(drupal_realpath("$path/db_tmp"));
 		}
