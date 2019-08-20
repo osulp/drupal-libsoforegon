@@ -294,4 +294,8 @@ a.library-map-button:hover, a.library-website-button:hover {
     }
 }
 
-
+ /*fix background width being too large for any screen size*/
+.row {
+    margin-left: 0;
+    margin-right: 0;
+}
