@@ -60,7 +60,3 @@
 ## HELP!!!
 
    http://drupal.org/project/issues/noggin
-
-
-
-
