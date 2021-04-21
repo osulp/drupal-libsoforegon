@@ -1,6 +1,11 @@
 <?php
 
 /**
+ * @file
+ * Standard install file. Main use is to remove variables on uninstall.
+ */
+
+/**
  * Implements hook_uninstall().
  *
  * Nukes old site variables, and removes the uploaded header image.
@@ -12,8 +17,9 @@ function noggin_uninstall() {
 }
 
 /**
- * Change the use_header variable to header_image, to allow for several example
- * images.
+ * Change the use_header variable to header_image.
+ *
+ * This allows for several example images.
  */
 function noggin_update_7101(&$sandbox) {
   if (variable_get('noggin:use_header', FALSE)) {
